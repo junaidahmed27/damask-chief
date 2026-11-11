@@ -42,7 +42,7 @@ def runtime(config):
     path = config.home / "runtime.json"
     if not path.exists():
         return None
-    return json.loads(path.read_text())
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def owned(config, r):

@@ -54,6 +54,8 @@ def handle(config, project_id, raw, output=sys.stdout):
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
     p = argparse.ArgumentParser()
     p.add_argument("--home", required=True)
     p.add_argument("--project", required=True)

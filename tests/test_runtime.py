@@ -333,3 +333,15 @@ def test_restore_preserves_history_but_cannot_revive_automatic_authority(rig,tmp
     project=store.get("projects",p["id"])
     assert not project["connected"]
     assert steering.policy_for(store,project)["paused"]
+
+
+def test_hook_emits_utf8_guidance_independent_of_console_encoding(rig):
+    import os
+    config,store,p,engine=rig
+    sid,_=emit(rig,prompt="Fix sorting. Do not edit 认证.")
+    f=make_finding(rig,sid)
+    steering.propose(store,f["id"],approved_text="请保留现有认证逻辑。")
+    raw={"hook_event_name":"PostToolUse","session_id":"session-one","cwd":p["root"],"tool_name":"Read","tool_input":{"file_path":"app.py"}}
+    result=subprocess.run([sys.executable,"-m","damask_chief_of_staff.hook","--home",str(config.home),"--project",p["id"]],
+        input=json.dumps(raw).encode(),capture_output=True,env={**os.environ,"PYTHONIOENCODING":"ascii"},check=True)
+    assert "请保留现有认证逻辑。" in json.loads(result.stdout.decode("utf-8"))["hookSpecificOutput"]["additionalContext"]

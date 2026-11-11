@@ -6,7 +6,7 @@ from damask_chief_of_staff.config import Config
 from damask_chief_of_staff.process import terminate_tree
 
 with tempfile.TemporaryDirectory(prefix="damask-launch-") as temp:
-    config=Config(Path(temp)/"state")
+    config=Config(Path(temp)/"state space 工程")
     running=None
     try:
         first=launch(config,False);running=first
