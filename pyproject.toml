@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "damask-chief"
+version = "0.1.0"
+description = "Local chief of staff for coding sessions"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "httpx>=0.28,<1", "psutil>=7,<8"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10"]
+
+[project.scripts]
+damask = "damask_chief_of_staff.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/damask_chief_of_staff"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

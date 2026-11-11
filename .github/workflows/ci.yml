@@ -1,0 +1,32 @@
+name: Local MVP checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install uv==0.12.6
+      - run: uv sync --frozen --extra dev
+      - run: uv run --frozen pytest -q
+      - run: uv run --frozen python scripts/smoke_launcher.py
+      - run: uv build --wheel
+      - name: Parse Windows launch controls
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Get-ChildItem -Recurse -Filter *.ps1 | Where-Object { $_.FullName -notmatch '\.venv' } | ForEach-Object {
+            $ParseErrors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$null, [ref]$ParseErrors) | Out-Null
+            if ($ParseErrors.Count) { throw ($ParseErrors | Out-String) }
+          }
